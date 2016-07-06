@@ -1,15 +1,77 @@
 ﻿using UnityEngine;
 using System.Collections;
+using UnityEngine.UI;
+using System.Collections.Generic;
 
-public class ViewManager : MonoBehaviour {
+public class ViewManager : MonoBehaviour
+{
 
-	// Use this for initialization
-	void Start () {
-	
+	enum Shape
+	{
+		NoShape,
+		Square,
+		Circle,
+		Triangle
 	}
-	
-	// Update is called once per frame
-	void Update () {
-	
+
+	public GameObject squareShape;
+	public GameObject circleShape;
+	public GameObject background;
+	public Vector3 defaultPosition;
+	public Canvas canvas;
+
+	private bool isShapeCreated;
+	private Shape currentTap;
+
+	private List<string> tagsShape;
+
+	void Start ()
+	{
+		currentTap = Shape.NoShape;
+		isShapeCreated = false;
+
+		tagsShape = new List<string> ();
+		tagsShape.Add ("CircleShape");
+		tagsShape.Add ("SquareShape");
+		tagsShape.Add ("TriangleShape");
 	}
+
+	public void GenerateObjectByType (Button sender)
+	{
+		if (sender.tag != currentTap.ToString ()) {
+			isShapeCreated = false;
+			CreateShape (sender.tag);
+		}
+	}
+
+	// Create shape by given name
+	void CreateShape (string shape)
+	{
+		// Destroy all objects
+		DestroyAllShape ();
+
+		if (shape == Shape.Square.ToString ()) {
+			Instantiate (squareShape, defaultPosition, Quaternion.identity);
+			currentTap = Shape.Square;
+		}
+
+		if (shape == Shape.Circle.ToString ()) {
+			Instantiate (circleShape, defaultPosition, Quaternion.identity);
+			currentTap = Shape.Circle;
+		}
+
+		isShapeCreated = true;
+	}
+
+	// Destroy object except a given name
+	void DestroyAllShape ()
+	{
+		foreach (string tag in tagsShape) {
+			GameObject tmpObj = GameObject.FindWithTag (tag);
+			if (tmpObj != null) {
+				Destroy (tmpObj);
+			}
+		}
+	}
+
 }
