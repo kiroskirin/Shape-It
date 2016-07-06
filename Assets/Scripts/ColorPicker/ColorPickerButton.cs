@@ -30,9 +30,10 @@ public class ColorPickerButton : MonoBehaviour {
 //		Time.timeScale = 0;
 	}
 
-	private void CloseColorPanel() {
+	public void CloseColorPanel() {
 		colorPickerPanel.SetActive (false);
 		isOpen = !isOpen;
 //		Time.timeScale = 1;
 	}
+
 }

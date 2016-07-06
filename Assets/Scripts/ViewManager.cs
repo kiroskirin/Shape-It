@@ -24,6 +24,8 @@ public class ViewManager : MonoBehaviour
 	private bool isShapeCreated;
 	private Shape currentTap;
 
+	private ColorPickerButton colorPickerButton;
+
 	private List<string> tagsShape;
 
 	void Start ()
@@ -35,6 +37,14 @@ public class ViewManager : MonoBehaviour
 		tagsShape.Add ("CircleShape");
 		tagsShape.Add ("SquareShape");
 		tagsShape.Add ("TriangleShape");
+
+		GameObject tmpObj = GameObject.FindWithTag ("ColorPickerButton");
+		if (tmpObj != null) {
+			colorPickerButton = tmpObj.GetComponent<ColorPickerButton> ();
+		}
+		if (colorPickerButton == null) {
+			Debug.Log("Cannot find colorpicker script");
+		}
 	}
 
 	public void GenerateObjectByType (Button sender)
@@ -89,12 +99,15 @@ public class ViewManager : MonoBehaviour
 		case Shape.Triangle:
 			currentShape = "TriangleShape";
 			break;
+		default:
+			colorPicker.gameObject.SetActive (false);
+			return;
 		}
 
 		GameObject tmpObj = GameObject.FindWithTag (currentShape);
 		if (tmpObj != null) {
 			tmpObj.GetComponent<MeshRenderer> ().material.color = sender.GetComponent<Image> ().color;
-			colorPicker.gameObject.SetActive (false);
+			colorPickerButton.CloseColorPanel();
 		}
 	}
 
