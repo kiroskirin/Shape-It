@@ -19,6 +19,7 @@ public class ViewManager : MonoBehaviour
 	public GameObject background;
 	public Vector3 defaultPosition;
 	public Canvas canvas;
+	public GameObject colorPicker;
 
 	private bool isShapeCreated;
 	private Shape currentTap;
@@ -71,6 +72,29 @@ public class ViewManager : MonoBehaviour
 			if (tmpObj != null) {
 				Destroy (tmpObj);
 			}
+		}
+	}
+
+	public void ApplyColor (Button sender)
+	{
+		string currentShape = "NoShape";
+
+		switch (currentTap) {
+		case Shape.Circle:
+			currentShape = "CircleShape";
+			break;
+		case Shape.Square:
+			currentShape = "SquareShape";
+			break;
+		case Shape.Triangle:
+			currentShape = "TriangleShape";
+			break;
+		}
+
+		GameObject tmpObj = GameObject.FindWithTag (currentShape);
+		if (tmpObj != null) {
+			tmpObj.GetComponent<MeshRenderer> ().material.color = sender.GetComponent<Image> ().color;
+			colorPicker.gameObject.SetActive (false);
 		}
 	}
 
