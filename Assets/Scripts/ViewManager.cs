@@ -16,22 +16,24 @@ public class ViewManager : MonoBehaviour
 
 	public GameObject squareShape;
 	public GameObject circleShape;
+	public GameObject triangleShape;
 	public GameObject background;
 	public Vector3 defaultPosition;
 	public Canvas canvas;
 	public GameObject colorPicker;
 
-	private bool isShapeCreated;
+	public Text countText;
+
 	private Shape currentTap;
-
 	private ColorPickerButton colorPickerButton;
-
 	private List<string> tagsShape;
+	private int touchCount;
 
+	// Initial Objects
 	void Start ()
 	{
+		touchCount = 0;
 		currentTap = Shape.NoShape;
-		isShapeCreated = false;
 
 		tagsShape = new List<string> ();
 		tagsShape.Add ("CircleShape");
@@ -43,14 +45,64 @@ public class ViewManager : MonoBehaviour
 			colorPickerButton = tmpObj.GetComponent<ColorPickerButton> ();
 		}
 		if (colorPickerButton == null) {
-			Debug.Log("Cannot find colorpicker script");
+			Debug.Log ("Cannot find colorpicker script");
+		}
+
+		UpdateCount ();
+	}
+
+	void LateUpdate ()
+	{
+		CheckUserTapped ();
+	}
+
+	// Checking User Tab and Count
+	void CheckUserTapped ()
+	{
+		foreach (Touch touch in Input.touches) {
+			Ray ray = Camera.main.ScreenPointToRay (touch.position);
+			RaycastHit hit;
+			if (Physics.Raycast (ray, out hit)) {
+				// if there is no tagged relate
+				if (hit.collider.tag == "Untagged") {
+					return;
+				}
+				// Count only when tap began
+				if (touch.tapCount > 0 && touch.phase == TouchPhase.Began) {
+				// Check if shape same as current active tap
+					if (hit.collider.tag.Contains (currentTap.ToString ())) {
+						touchCount += 1;
+					}
+					// Update count
+					UpdateCount ();
+//				Destroy(hit.transform.gameObject);
+				}
+
+			}
+
 		}
 	}
 
+	// Update Count Text
+	void UpdateCount ()
+	{
+		countText.text = "Count: " + touchCount;
+	}
+
+	// Reset Counter to 0
+	void ResetCount ()
+	{
+		touchCount = 0;
+		UpdateCount ();
+	}
+
+	// Generate Object when switch Tab bar
 	public void GenerateObjectByType (Button sender)
 	{
 		if (sender.tag != currentTap.ToString ()) {
-			isShapeCreated = false;
+			// Reset Count Text
+			ResetCount ();
+			// Create new shape
 			CreateShape (sender.tag);
 		}
 	}
@@ -71,7 +123,11 @@ public class ViewManager : MonoBehaviour
 			currentTap = Shape.Circle;
 		}
 
-		isShapeCreated = true;
+		if (shape == Shape.Triangle.ToString ()) {
+			Instantiate (triangleShape, defaultPosition, Quaternion.identity);
+			currentTap = Shape.Triangle;
+		}
+
 	}
 
 	// Destroy object except a given name
@@ -85,6 +141,7 @@ public class ViewManager : MonoBehaviour
 		}
 	}
 
+	// Apply Color when select color picker
 	public void ApplyColor (Button sender)
 	{
 		string currentShape = "NoShape";
@@ -107,7 +164,7 @@ public class ViewManager : MonoBehaviour
 		GameObject tmpObj = GameObject.FindWithTag (currentShape);
 		if (tmpObj != null) {
 			tmpObj.GetComponent<MeshRenderer> ().material.color = sender.GetComponent<Image> ().color;
-			colorPickerButton.CloseColorPanel();
+			colorPickerButton.CloseColorPanel ();
 		}
 	}
 
