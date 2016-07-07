@@ -21,8 +21,9 @@ public class ViewManager : MonoBehaviour
 	public Vector3 defaultPosition;
 	public Canvas canvas;
 	public GameObject colorPicker;
-
 	public Text countText;
+	public GameObject explosion;
+	public float maxTouchCount;
 
 	private Shape currentTap;
 	private ColorPickerButton colorPickerButton;
@@ -69,18 +70,29 @@ public class ViewManager : MonoBehaviour
 				}
 				// Count only when tap began
 				if (touch.tapCount > 0 && touch.phase == TouchPhase.Began) {
-				// Check if shape same as current active tap
+					// Check if shape same as current active tap
 					if (hit.collider.tag.Contains (currentTap.ToString ())) {
 						touchCount += 1;
 					}
-					// Update count
-					UpdateCount ();
-//				Destroy(hit.transform.gameObject);
+
+					if (touchCount >= maxTouchCount) {
+						MakeExplosion (hit);
+					} else {
+						// Update count
+						UpdateCount ();	
+					}
 				}
 
 			}
 
 		}
+	}
+
+	void MakeExplosion (RaycastHit other)
+	{
+		Instantiate (explosion, other.transform.position, other.transform.rotation);
+		Destroy (other.transform.gameObject);
+		ResetCount();
 	}
 
 	// Update Count Text
@@ -93,6 +105,7 @@ public class ViewManager : MonoBehaviour
 	void ResetCount ()
 	{
 		touchCount = 0;
+		currentTap = Shape.NoShape;
 		UpdateCount ();
 	}
 
